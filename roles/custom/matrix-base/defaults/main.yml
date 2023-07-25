@@ -13,6 +13,12 @@ matrix_domain: ~
 # Example value: "@someone:{{ matrix_domain }}"
 matrix_admin: ''
 
+# Global var to enable/disable encryption across all bridges with encryption support
+matrix_bridges_encryption_enabled: false
+
+# Global var to enable/disable relay mode across all bridges with relay mode support
+matrix_bridges_relay_enabled: false
+
 # matrix_homeserver_enabled controls whether to enable the homeserver systemd service, etc.
 #
 # Unless you're wrapping this playbook in another one
@@ -72,7 +78,7 @@ matrix_server_fqn_buscarron: "buscarron.{{ matrix_domain }}"
 # This is where you access the Dimension.
 matrix_server_fqn_dimension: "dimension.{{ matrix_domain }}"
 
-# This is where you access the etherpad (if enabled via matrix_etherpad_enabled; disabled by default).
+# This is where you access the etherpad (if enabled via etherpad_enabled; disabled by default).
 matrix_server_fqn_etherpad: "etherpad.{{ matrix_domain }}"
 
 # For use with Go-NEB! (github callback url for example)
@@ -89,6 +95,9 @@ matrix_server_fqn_sygnal: "sygnal.{{ matrix_domain }}"
 
 # This is where you access the ntfy push notification service.
 matrix_server_fqn_ntfy: "ntfy.{{ matrix_domain }}"
+
+# This is where you access rageshake.
+matrix_server_fqn_rageshake: "rageshake.{{ matrix_domain }}"
 
 matrix_federation_public_port: 8448
 
@@ -281,7 +290,7 @@ matrix_homeserver_app_service_config_files_auto: []
 # Valid options and a description of their behavior:
 #
 # - `playbook-managed-traefik`
-#     - the playbook will install devture-traefik
+#     - the playbook will run a managed Traefik instance (matrix-traefik)
 #     - Traefik will do SSL termination, unless you disable it (e.g. `devture_traefik_config_entrypoint_web_secure_enabled: false`)
 #     - if SSL termination is enabled (as it is by default), you need to populate: `devture_traefik_config_certificatesResolvers_acme_email`
 #     - it will also install matrix-nginx-proxy in local-only mode, while we migrate the rest of the services to a Traefik-native mode of working
@@ -316,7 +325,7 @@ matrix_homeserver_app_service_config_files_auto: []
 #     - no nginx configuration will be dumped in /matrix/nginx/conf.d
 #     - no port exposure will be done for any of the container services
 #     - it's up to you to expose the ports you want, etc.
-matrix_playbook_reverse_proxy_type: playbook-managed-nginx
+matrix_playbook_reverse_proxy_type: ''
 
 matrix_playbook_service_host_bind_interface_prefix: "{{ '' if matrix_playbook_reverse_proxy_type not in ['other-nginx-non-container', 'other-on-same-host', 'other-on-another-host'] else ('0.0.0.0:' if matrix_playbook_reverse_proxy_type == 'other-on-another-host' else '127.0.0.1:') }}"
 

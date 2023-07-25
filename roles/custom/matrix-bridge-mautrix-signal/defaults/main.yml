@@ -9,8 +9,8 @@ matrix_mautrix_signal_docker_repo: "https://mau.dev/mautrix/signal.git"
 matrix_mautrix_signal_docker_repo_version: "{{ 'master' if matrix_mautrix_signal_version == 'latest' else matrix_mautrix_signal_version }}"
 matrix_mautrix_signal_docker_src_files_path: "{{ matrix_base_data_path }}/mautrix-signal/docker-src"
 
-matrix_mautrix_signal_version: v0.4.2
-matrix_mautrix_signal_daemon_version: 0.23.1
+matrix_mautrix_signal_version: v0.4.3
+matrix_mautrix_signal_daemon_version: 0.23.2
 # See: https://mau.dev/mautrix/signal/container_registry
 matrix_mautrix_signal_docker_image: "{{ matrix_mautrix_signal_docker_image_name_prefix }}mautrix/signal:{{ matrix_mautrix_signal_version }}"
 matrix_mautrix_signal_docker_image_name_prefix: "{{ 'localhost/' if matrix_mautrix_signal_container_image_self_build else 'dock.mau.dev/' }}"
@@ -104,7 +104,7 @@ matrix_mautrix_signal_appservice_database: "{{
 matrix_mautrix_signal_login_shared_secret: ''
 
 # Enable bridge relay bot functionality
-matrix_mautrix_signal_relaybot_enabled: false
+matrix_mautrix_signal_relaybot_enabled: "{{ matrix_bridges_relay_enabled }}"
 
 # Permissions for using the bridge.
 # Permitted values:
@@ -152,7 +152,7 @@ matrix_mautrix_signal_registration: "{{ matrix_mautrix_signal_registration_yaml 
 
 matrix_mautrix_signal_log_level: 'DEBUG'
 
-matrix_mautrix_signal_bridge_encryption_allow: false
+matrix_mautrix_signal_bridge_encryption_allow: "{{ matrix_bridges_encryption_enabled }}"
 matrix_mautrix_signal_bridge_encryption_default: "{{ matrix_mautrix_signal_bridge_encryption_allow }}"
 matrix_mautrix_signal_bridge_encryption_key_sharing_allow: "{{ matrix_mautrix_signal_bridge_encryption_allow }}"
 

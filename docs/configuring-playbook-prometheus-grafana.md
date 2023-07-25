@@ -7,7 +7,7 @@ You can enable this with the following settings in your configuration file (`inv
 Remember to add `stats.<your-domain>` to DNS as described in [Configuring DNS](configuring-dns.md) before running the playbook.
 
 ```yaml
-matrix_prometheus_enabled: true
+prometheus_enabled: true
 
 # You can remove this, if unnecessary.
 prometheus_node_exporter_enabled: true
@@ -39,7 +39,7 @@ The retention policy of Prometheus metrics is [15 days by default](https://prome
 
 Name | Description
 -----|----------
-`matrix_prometheus_enabled`|[Prometheus](https://prometheus.io) is a time series database. It holds all the data we're going to talk about.
+`prometheus_enabled`|[Prometheus](https://prometheus.io) is a time series database. It holds all the data we're going to talk about.
 `prometheus_node_exporter_enabled`|[Node Exporter](https://prometheus.io/docs/guides/node-exporter/) is an addon of sorts to Prometheus that collects generic system information such as CPU, memory, filesystem, and even system temperatures
 `prometheus_postgres_exporter_enabled`|[Postgres Exporter](configuring-playbook-prometheus-postgres.md) is an addon of sorts to expose Postgres database metrics to Prometheus.
 `matrix_prometheus_nginxlog_exporter_enabled`|[NGINX Log Exporter](configuring-playbook-prometheus-nginxlog.md) is an addon of sorts to expose NGINX logs to Prometheus.
@@ -57,7 +57,7 @@ Most of our docker containers run with limited system access, but the `prometheu
 
 ## Collecting metrics to an external Prometheus server
 
-**If the integrated Prometheus server is enabled** (`matrix_prometheus_enabled: true`), metrics are collected by it from each service via communication that happens over the container network. Each service does not need to expose its metrics "publicly".
+**If the integrated Prometheus server is enabled** (`prometheus_enabled: true`), metrics are collected by it from each service via communication that happens over the container network. Each service does not need to expose its metrics "publicly".
 
 When you'd like **to collect metrics from an external Prometheus server**, you need to expose service metrics outside of the container network.
 
@@ -83,6 +83,7 @@ Name | Description
 `matrix_bridge_hookshot_metrics_proxying_enabled`|Set this to `true` to expose the [Hookshot](configuring-playbook-bridge-hookshot.md) metrics on `https://matrix.DOMAIN/metrics/hookshot` (only takes effect if `matrix_nginx_proxy_proxy_matrix_metrics_enabled: true`)
 `matrix_SERVICE_metrics_proxying_enabled`|Various other services/roles may provide similar `_metrics_enabled` and `_metrics_proxying_enabled` variables for exposing their metrics. Refer to each role for details. Only takes effect if `matrix_nginx_proxy_proxy_matrix_metrics_enabled: true`
 `matrix_nginx_proxy_proxy_matrix_metrics_additional_user_location_configuration_blocks`|Add nginx `location` blocks to this list if you'd like to expose additional exporters manually (see below)
+`matrix_media_repo_metrics_enabled`|Set this to `true` to make media-repo expose metrics (locally, on the container network)
 
 Example for how to make use of `matrix_nginx_proxy_proxy_matrix_metrics_additional_user_location_configuration_blocks` for exposing additional metrics locations:
 ```nginx

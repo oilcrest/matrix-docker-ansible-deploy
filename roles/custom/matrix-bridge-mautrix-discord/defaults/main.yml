@@ -8,7 +8,7 @@ matrix_mautrix_discord_container_image_self_build: false
 matrix_mautrix_discord_container_image_self_build_repo: "https://mau.dev/mautrix/discord.git"
 matrix_mautrix_discord_container_image_self_build_branch: "{{ 'main' if matrix_mautrix_discord_version == 'latest' else matrix_mautrix_discord_version }}"
 
-matrix_mautrix_discord_version: v0.1.1
+matrix_mautrix_discord_version: v0.6.0
 # See: https://mau.dev/mautrix/discord/container_registry
 matrix_mautrix_discord_docker_image: "{{ matrix_mautrix_discord_docker_image_name_prefix }}mautrix/discord:{{ matrix_mautrix_discord_version }}"
 matrix_mautrix_discord_docker_image_name_prefix: "{{ 'localhost/' if matrix_mautrix_discord_container_image_self_build else 'dock.mau.dev/' }}"
@@ -137,7 +137,7 @@ matrix_mautrix_discord_registration_yaml: |
 matrix_mautrix_discord_registration: "{{ matrix_mautrix_discord_registration_yaml | from_yaml }}"
 
 # Enable End-to-bridge encryption
-matrix_mautrix_discord_bridge_encryption_allow: false
+matrix_mautrix_discord_bridge_encryption_allow: "{{ matrix_bridges_encryption_enabled }}"
 matrix_mautrix_discord_bridge_encryption_default: "{{ matrix_mautrix_discord_bridge_encryption_allow }}"
 matrix_mautrix_discord_bridge_encryption_key_sharing_allow: "{{ matrix_mautrix_discord_bridge_encryption_allow }}"
 
