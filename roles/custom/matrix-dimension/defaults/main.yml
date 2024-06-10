@@ -29,13 +29,17 @@ matrix_dimension_container_image_self_build_branch: master
 matrix_dimension_base_path: "{{ matrix_base_data_path }}/dimension"
 matrix_dimension_docker_src_files_path: "{{ matrix_base_data_path }}/docker-src/dimension"
 
+# renovate: datasource=docker depName=turt2live/matrix-dimension
 matrix_dimension_version: latest
 matrix_dimension_docker_image: "{{ matrix_dimension_docker_image_name_prefix }}turt2live/matrix-dimension:{{ matrix_dimension_version }}"
 matrix_dimension_docker_image_name_prefix: "{{ 'localhost/' if matrix_dimension_container_image_self_build else matrix_container_global_registry_prefix }}"
 matrix_dimension_docker_image_force_pull: "{{ matrix_dimension_docker_image.endswith(':latest') }}"
 
 # List of systemd services that matrix-dimension.service depends on.
-matrix_dimension_systemd_required_services_list: ['docker.service']
+matrix_dimension_systemd_required_services_list: "{{ matrix_dimension_systemd_required_services_list_default + matrix_dimension_systemd_required_services_list_auto + matrix_dimension_systemd_required_services_list_custom }}"
+matrix_dimension_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+matrix_dimension_systemd_required_services_list_auto: []
+matrix_dimension_systemd_required_services_list_custom: []
 
 # List of systemd services that matrix-dimension.service wants
 matrix_dimension_systemd_wanted_services_list: []

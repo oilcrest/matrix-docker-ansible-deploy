@@ -31,13 +31,15 @@ Refer to the documentation on [how to obtain an access token](obtaining-access-t
 
 You will need to prevent Synapse from rate limiting the bot's account. This is not an optional step. If you do not do this step Mjolnir will crash. This can be done using Synapse's [admin API](https://matrix-org.github.io/synapse/latest/admin_api/user_admin_api.html#override-ratelimiting-for-users). Please ask for help if you are uncomfortable with these steps or run into issues.
 
-If your Synapse Admin API is exposed to the internet for some reason like running the Synapse Admin Role [Link](docs/configuring-playbook-synapse-admin.md) or running `matrix_nginx_proxy_proxy_matrix_client_api_forwarded_location_synapse_admin_api_enabled: true` in your playbook config. If your API is not externally exposed you should still be able to on the local host for your synapse run these commands. 
+If your Synapse Admin API is exposed to the internet for some reason like running the Synapse Admin Role [Link](/docs/configuring-playbook-synapse-admin.md) or running `matrix_synapse_container_labels_public_client_synapse_admin_api_enabled: true` in your playbook config. If your API is not externally exposed you should still be able to on the local host for your synapse run these commands.
 
-The following command works on semi up to date Windows 10 installs and All Windows 11 installations and other systems that ship curl. `curl --header "Authorization: Bearer <access_token>" -X DELETE https://matrix.example.com/_synapse/admin/v1/users/@example:example.com/override_ratelimit` Replace `@example:example.com` with the MXID of your Mjolnir and example.com with your homeserver domain. You can easily obtain an access token for a homeserver admin account the same way you can obtain an access token for Mjolnir it self. If you made Mjolnir Admin you can just use the Mjolnir token.
+The following command works on semi up to date Windows 10 installs and All Windows 11 installations and other systems that ship curl. `curl --header "Authorization: Bearer <access_token>" -X POST https://matrix.example.com/_synapse/admin/v1/users/@example:example.com/override_ratelimit` Replace `@example:example.com` with the MXID of your Mjolnir and example.com with your homeserver domain. You can easily obtain an access token for a homeserver admin account the same way you can obtain an access token for Mjolnir it self. If you made Mjolnir Admin you can just use the Mjolnir token.
 
 ## 4. Create a management room
 
-Using your own account, create a new invite only room that you will use to manage the bot. This is the room where you will see the status of the bot and where you will send commands to the bot, such as the command to ban a user from another room. Anyone in this room can control the bot so it is important that you only invite trusted users to this room. The room must be unencrypted since the playbook does not support installing Pantalaimon yet.
+Using your own account, create a new invite only room that you will use to manage the bot. This is the room where you will see the status of the bot and where you will send commands to the bot, such as the command to ban a user from another room. Anyone in this room can control the bot so it is important that you only invite trusted users to this room.
+
+If you make the management room encrypted (E2EE), then you MUST enable and use Pantalaimon (see below).
 
 Once you have created the room you need to copy the room ID so you can tell the bot to use that room. In Element you can do this by going to the room's settings, clicking Advanced, and then coping the internal room ID. The room ID will look something like `!QvgVuKq0ha8glOLGMG:DOMAIN`.
 
@@ -45,6 +47,47 @@ Finally invite the `@bot.mjolnir:DOMAIN` account you created earlier into the ro
 
 
 ## 5. Adjusting the playbook configuration
+
+Decide whether you want Mjolnir to be capable of operating in end-to-end encrypted (E2EE) rooms. This includes the management room and the moderated rooms. To support E2EE, Mjolnir needs to [use Pantalaimon](configuring-playbook-pantalaimon.md).
+
+### 5a. Configuration with E2EE support
+
+When using Pantalaimon, Mjolnir will log in to its bot account itself through Pantalaimon, so configure its username and password.
+
+Add the following configuration to your `inventory/host_vars/matrix.DOMAIN/vars.yml` file (adapt to your needs):
+
+```yaml
+# Enable Pantalaimon. See docs/configuring-playbook-pantalaimon.md
+matrix_pantalaimon_enabled: true
+
+# Enable Mjolnir
+matrix_bot_mjolnir_enabled: true
+
+# Tell Mjolnir to use Pantalaimon
+matrix_bot_mjolnir_pantalaimon_use: true
+
+# User name and password for the bot. Required when using Pantalaimon.
+matrix_bot_mjolnir_pantalaimon_username: "MJOLNIR_USERNAME_FROM_STEP_1"
+matrix_bot_mjolnir_pantalaimon_password: ### you should create a secure password for the bot account
+
+matrix_bot_mjolnir_management_room: "ROOM_ID_FROM_STEP_4_GOES_HERE"
+```
+
+The playbook's `group_vars` will configure other required settings. If using this role separately without the playbook, you also need to configure the two URLs that Mjolnir uses to reach the homeserver, one through Pantalaimon and one "raw". This example is taken from the playbook's `group_vars`:
+
+```yaml
+# Endpoint URL that Mjolnir uses to interact with the matrix homeserver (client-server API).
+# Set this to the pantalaimon URL if you're using that.
+matrix_bot_mjolnir_homeserver_url: "{{ 'http://matrix-pantalaimon:8009' if matrix_bot_mjolnir_pantalaimon_use else matrix_addons_homeserver_client_api_url }}"
+
+# Endpoint URL that Mjolnir could use to fetch events related to reports (client-server API and /_synapse/),
+# only set this to the public-internet homeserver client API URL, do NOT set this to the pantalaimon URL.
+matrix_bot_mjolnir_raw_homeserver_url: "{{ matrix_addons_homeserver_client_api_url }}"
+```
+
+### 5b. Configuration without E2EE support
+
+When NOT using Pantalaimon, Mjolnir does not log in by itself and you must give it an access token for its bot account.
 
 Add the following configuration to your `inventory/host_vars/matrix.DOMAIN/vars.yml` file (adapt to your needs):
 

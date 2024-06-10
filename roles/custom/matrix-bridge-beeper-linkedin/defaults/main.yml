@@ -4,7 +4,8 @@
 
 matrix_beeper_linkedin_enabled: true
 
-matrix_beeper_linkedin_version: v0.5.4
+# renovate: datasource=docker depName=ghcr.io/beeper/linkedin
+matrix_beeper_linkedin_version: latest
 
 # See: https://github.com/beeper/linkedin/pkgs/container/linkedin
 matrix_beeper_linkedin_docker_image: "{{ matrix_beeper_linkedin_docker_image_name_prefix }}beeper/linkedin:{{ matrix_beeper_linkedin_docker_image_tag }}"
@@ -14,14 +15,14 @@ matrix_beeper_linkedin_docker_image_tag: "{{ 'latest' if matrix_beeper_linkedin_
 
 matrix_beeper_linkedin_container_image_self_build: false
 matrix_beeper_linkedin_container_image_self_build_repo: "https://github.com/beeper/linkedin"
-matrix_beeper_linkedin_container_image_self_build_branch: "{{ matrix_beeper_linkedin_version }}"
+matrix_beeper_linkedin_container_image_self_build_branch: "{{ 'master' if matrix_beeper_linkedin_version == 'latest' else matrix_beeper_linkedin_version }}"
 
 matrix_beeper_linkedin_base_path: "{{ matrix_base_data_path }}/beeper-linkedin"
 matrix_beeper_linkedin_config_path: "{{ matrix_beeper_linkedin_base_path }}/config"
 matrix_beeper_linkedin_data_path: "{{ matrix_beeper_linkedin_base_path }}/data"
 matrix_beeper_linkedin_docker_src_files_path: "{{ matrix_beeper_linkedin_base_path }}/docker-src"
 
-matrix_beeper_linkedin_homeserver_address: "{{ matrix_homeserver_container_url }}"
+matrix_beeper_linkedin_homeserver_address: ""
 matrix_beeper_linkedin_homeserver_domain: "{{ matrix_domain }}"
 matrix_beeper_linkedin_appservice_address: "http://matrix-beeper-linkedin:29319"
 
@@ -37,11 +38,20 @@ matrix_beeper_linkedin_bridge_permissions: |
     | combine({matrix_admin: 'admin'} if matrix_admin else {})
   }}
 
+matrix_beeper_linkedin_container_network: ""
+
+matrix_beeper_linkedin_container_additional_networks: "{{ matrix_beeper_linkedin_container_additional_networks_auto + matrix_beeper_linkedin_container_additional_networks_custom }}"
+matrix_beeper_linkedin_container_additional_networks_auto: []
+matrix_beeper_linkedin_container_additional_networks_custom: []
+
 # A list of extra arguments to pass to the container
 matrix_beeper_linkedin_container_extra_arguments: []
 
 # List of systemd services that matrix-beeper-linkedin.service depends on.
-matrix_beeper_linkedin_systemd_required_services_list: ['docker.service']
+matrix_beeper_linkedin_systemd_required_services_list: "{{ matrix_beeper_linkedin_systemd_required_services_list_default + matrix_beeper_linkedin_systemd_required_services_list_auto + matrix_beeper_linkedin_systemd_required_services_list_custom }}"
+matrix_beeper_linkedin_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+matrix_beeper_linkedin_systemd_required_services_list_auto: []
+matrix_beeper_linkedin_systemd_required_services_list_custom: []
 
 # List of systemd services that matrix-beeper-linkedin.service wants
 matrix_beeper_linkedin_systemd_wanted_services_list: []
@@ -61,8 +71,9 @@ matrix_beeper_linkedin_database_password: 'some-password'
 matrix_beeper_linkedin_database_hostname: ''
 matrix_beeper_linkedin_database_port: 5432
 matrix_beeper_linkedin_database_name: 'matrix_beeper_linkedin'
+matrix_beeper_linkedin_database_sslmode: disable
 
-matrix_beeper_linkedin_database_connection_string: 'postgresql://{{ matrix_beeper_linkedin_database_username }}:{{ matrix_beeper_linkedin_database_password }}@{{ matrix_beeper_linkedin_database_hostname }}:{{ matrix_beeper_linkedin_database_port }}/{{ matrix_beeper_linkedin_database_name }}?sslmode=disable'
+matrix_beeper_linkedin_database_connection_string: 'postgresql://{{ matrix_beeper_linkedin_database_username }}:{{ matrix_beeper_linkedin_database_password }}@{{ matrix_beeper_linkedin_database_hostname }}:{{ matrix_beeper_linkedin_database_port }}/{{ matrix_beeper_linkedin_database_name }}?sslmode={{ matrix_beeper_linkedin_database_sslmode }}'
 
 matrix_beeper_linkedin_appservice_database_type: "{{
 	{
@@ -85,7 +96,7 @@ matrix_beeper_linkedin_logging_level: WARNING
 
 # Enable End-to-bridge encryption
 matrix_beeper_linkedin_bridge_encryption_allow: "{{ matrix_bridges_encryption_enabled }}"
-matrix_beeper_linkedin_bridge_encryption_default: "{{ matrix_beeper_linkedin_bridge_encryption_allow }}"
+matrix_beeper_linkedin_bridge_encryption_default: "{{ matrix_bridges_encryption_default }}"
 matrix_beeper_linkedin_bridge_encryption_key_sharing_allow: "{{ matrix_beeper_linkedin_bridge_encryption_allow }}"
 
 # Default beeper-linkedin configuration template which covers the generic use case.

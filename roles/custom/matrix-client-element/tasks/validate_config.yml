@@ -6,7 +6,8 @@
       You need to define a required configuration setting (`{{ item }}`) for using Element.
   when: "vars[item] == ''"
   with_items:
-    - "matrix_client_element_default_hs_url"
+    - matrix_client_element_default_hs_url
+    - matrix_client_element_container_network
 
 - name: Fail if Element location sharing enabled, but no tile server defined
   ansible.builtin.fail:
@@ -26,6 +27,23 @@
   when: "vars | dict2items | selectattr('key', 'match', item.old) | list | items2dict"
   with_items:
     - {'old': 'matrix_riot_web_.*', 'new': 'matrix_client_element_.*'}
+
+- name: (Deprecation) Catch and report renamed element-web settings
+  ansible.builtin.fail:
+    msg: >-
+      Your configuration contains a variable, which now has a different name.
+      Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
+  when: "item.old in vars"
+  with_items:
+    - {'old': 'matrix_client_element_showLabsSettings', 'new': 'matrix_client_element_show_lab_settings'}
+    - {'old': 'matrix_client_element_permalinkPrefix', 'new': 'matrix_client_element_permalink_prefix'}
+    - {'old': 'matrix_client_element_roomdir_servers', 'new': 'matrix_client_element_room_directory_servers'}
+    - {'old': 'matrix_client_element_settingDefaults_custom_themes', 'new': 'matrix_client_element_setting_defaults_custom_themes'}
+    - {'old': 'matrix_client_element_branding_authFooterLinks', 'new': 'matrix_client_element_branding_auth_footer_links'}
+    - {'old': 'matrix_client_element_branding_authHeaderLogoUrl', 'new': 'matrix_client_element_branding_auth_header_logo_url'}
+    - {'old': 'matrix_client_element_branding_welcomeBackgroundUrl', 'new': 'matrix_client_element_branding_welcome_background_url'}
+    - {'old': 'matrix_client_element_jitsi_preferredDomain', 'new': 'matrix_client_element_jitsi_preferred_domain'}
+    - {'old': 'matrix_client_element_welcome_user_id', 'new': '<removed>'}
 
 - when: matrix_client_element_container_labels_traefik_enabled | bool
   block:

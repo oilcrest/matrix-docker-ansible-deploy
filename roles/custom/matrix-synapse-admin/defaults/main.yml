@@ -8,13 +8,11 @@ matrix_synapse_admin_enabled: true
 matrix_synapse_admin_base_path: "{{ matrix_base_data_path }}/synapse-admin"
 matrix_synapse_admin_docker_src_files_path: "{{ matrix_synapse_admin_base_path }}/docker-src"
 
-# Specifies whether this role will integrate with the matrix-nginx-proxy role
-matrix_synapse_admin_nginx_proxy_integration_enabled: false
-
 matrix_synapse_admin_container_image_self_build: false
 matrix_synapse_admin_container_image_self_build_repo: "https://github.com/Awesome-Technologies/synapse-admin.git"
 
-matrix_synapse_admin_version: 0.8.7
+# renovate: datasource=docker depName=awesometechnologies/synapse-admin
+matrix_synapse_admin_version: 0.10.1
 matrix_synapse_admin_docker_image: "{{ matrix_synapse_admin_docker_image_name_prefix }}awesometechnologies/synapse-admin:{{ matrix_synapse_admin_version }}"
 matrix_synapse_admin_docker_image_name_prefix: "{{ 'localhost/' if matrix_synapse_admin_container_image_self_build else matrix_container_global_registry_prefix }}"
 matrix_synapse_admin_docker_image_force_pull: "{{ matrix_synapse_admin_docker_image.endswith(':latest') }}"
@@ -75,7 +73,7 @@ matrix_synapse_admin_container_labels_traefik_additional_response_headers_custom
 matrix_synapse_admin_container_labels_additional_labels: ''
 
 # List of systemd services that matrix-synapse-admin.service depends on
-matrix_synapse_admin_systemd_required_services_list: ['docker.service']
+matrix_synapse_admin_systemd_required_services_list: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
 
 # List of systemd services that matrix-synapse-admin.service wants
 matrix_synapse_admin_systemd_wanted_services_list: []
@@ -132,13 +130,8 @@ matrix_synapse_admin_floc_optout_enabled: true
 matrix_synapse_admin_hsts_preload_enabled: false
 
 # The hostname at which Synapse Admin is served.
-# Only works with with Traefik reverse-proxying.
-# For matrix-nginx-proxy, `matrix_server_fqn_matrix` is used and this variable has no effect.
 matrix_synapse_admin_hostname: "{{ matrix_server_fqn_matrix }}"
 
 # The path at which Synapse Admin is exposed.
-# When matrix-nginx-proxy is used, setting this to values other than `/` will cause configuration mismatches and trouble.
-#
-# If Traefik is used, the hostname is also configurable - see `matrix_synapse_admin_container_labels_traefik_hostname`.
 # This value must either be `/` or not end with a slash (e.g. `/synapse-admin`).
 matrix_synapse_admin_path_prefix: /synapse-admin

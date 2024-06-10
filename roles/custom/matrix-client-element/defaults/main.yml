@@ -1,16 +1,18 @@
 ---
-# Project source code URL: https://github.com/vector-im/element-web
+# Project source code URL: https://github.com/element-hq/element-web
 
 matrix_client_element_enabled: true
 
 matrix_client_element_container_image_self_build: false
-matrix_client_element_container_image_self_build_repo: "https://github.com/vector-im/element-web.git"
+matrix_client_element_container_image_self_build_repo: "https://github.com/element-hq/element-web.git"
 # Controls whether to patch webpack.config.js when self-building, so that building can pass on low-memory systems (< 4 GB RAM):
 # - https://github.com/spantaleev/matrix-docker-ansible-deploy/issues/1357
-# - https://github.com/vector-im/element-web/issues/19544
+# - https://github.com/element-hq/element-web/issues/19544
 matrix_client_element_container_image_self_build_low_memory_system_patch_enabled: "{{ ansible_memtotal_mb < 4096 }}"
 
-matrix_client_element_version: v1.11.36
+# renovate: datasource=docker depName=vectorim/element-web
+matrix_client_element_version: v1.11.68
+
 matrix_client_element_docker_image: "{{ matrix_client_element_docker_image_name_prefix }}vectorim/element-web:{{ matrix_client_element_version }}"
 matrix_client_element_docker_image_name_prefix: "{{ 'localhost/' if matrix_client_element_container_image_self_build else matrix_container_global_registry_prefix }}"
 matrix_client_element_docker_image_force_pull: "{{ matrix_client_element_docker_image.endswith(':latest') }}"
@@ -19,7 +21,7 @@ matrix_client_element_data_path: "{{ matrix_base_data_path }}/client-element"
 matrix_client_element_docker_src_files_path: "{{ matrix_client_element_data_path }}/docker-src"
 
 # The base container network
-matrix_client_element_container_network: matrix-client-element
+matrix_client_element_container_network: ''
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
@@ -74,7 +76,7 @@ matrix_client_element_container_labels_additional_labels: ''
 matrix_client_element_container_extra_arguments: []
 
 # List of systemd services that matrix-client-element.service depends on
-matrix_client_element_systemd_required_services_list: ['docker.service']
+matrix_client_element_systemd_required_services_list: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
 
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
@@ -127,15 +129,11 @@ matrix_client_element_floc_optout_enabled: true
 # See: `matrix_client_element_http_header_strict_transport_security`
 matrix_client_element_hsts_preload_enabled: false
 
+matrix_client_element_scheme: https
 # The hostname at which Element is served.
-# Only works with with Traefik reverse-proxying.
-# For matrix-nginx-proxy, `matrix_server_fqn_element` is used and this variable has no effect.
 matrix_client_element_hostname: "{{ matrix_server_fqn_element }}"
 
 # The path at which Element is exposed.
-# When matrix-nginx-proxy is used, setting this to values other than `/` will cause configuration mismatches and trouble.
-#
-# If Traefik is used, the hostname is also configurable - see `matrix_client_element_container_labels_traefik_hostname`.
 # This value must either be `/` or not end with a slash (e.g. `/element`).
 matrix_client_element_path_prefix: /
 
@@ -143,39 +141,39 @@ matrix_client_element_path_prefix: /
 matrix_client_element_default_server_name: "{{ matrix_domain }}"
 matrix_client_element_default_hs_url: ""
 matrix_client_element_default_is_url: ~
+matrix_client_element_map_style_url: "{{ matrix_client_element_scheme }}://{{ matrix_client_element_hostname }}/map_style.json"
 matrix_client_element_disable_custom_urls: true
 matrix_client_element_disable_guests: true
 matrix_client_element_integrations_ui_url: "https://scalar.vector.im/"
 matrix_client_element_integrations_rest_url: "https://scalar.vector.im/api"
 matrix_client_element_integrations_widgets_urls: ["https://scalar.vector.im/api"]
 matrix_client_element_integrations_jitsi_widget_url: "https://scalar.vector.im/api/widgets/jitsi.html"
-matrix_client_element_permalinkPrefix: "https://matrix.to"  # noqa var-naming
+matrix_client_element_permalink_prefix: "https://matrix.to"  # noqa var-naming
 matrix_client_element_bug_report_endpoint_url: "https://element.io/bugreports/submit"
-matrix_client_element_showLabsSettings: true  # noqa var-naming
+matrix_client_element_show_lab_settings: true  # noqa var-naming
 # Element public room directory server(s)
-matrix_client_element_roomdir_servers: ['matrix.org']
-matrix_client_element_welcome_user_id: ~
+matrix_client_element_room_directory_servers: ['matrix.org']
 # Branding of Element
 matrix_client_element_brand: "Element"
 
 # URL to Logo on welcome page
-matrix_client_element_welcome_logo: "welcome/images/logo.svg"
+matrix_client_element_welcome_logo: "themes/element/img/logos/element-logo.svg"
 
 # URL of link on welcome image
 matrix_client_element_welcome_logo_link: "https://element.io"
 
-matrix_client_element_welcome_headline: "_t('Welcome to Element')"
-matrix_client_element_welcome_text: "_t('Decentralised, encrypted chat &amp; collaboration powered by [matrix]')"
+matrix_client_element_welcome_headline: "_t(\"welcome_to_element\")"
+matrix_client_element_welcome_text: "_t(\"powered_by_matrix_with_logo\")"
 
 # Links, shown in footer of welcome page:
 # [{"text": "Link text", "url": "https://link.target"}, {"text": "Other link"}]
-matrix_client_element_branding_authFooterLinks: ~  # noqa var-naming
+matrix_client_element_branding_auth_footer_links: ~  # noqa var-naming
 
 # URL to image, shown during Login
-matrix_client_element_branding_authHeaderLogoUrl: "{{ matrix_client_element_welcome_logo }}"  # noqa var-naming
+matrix_client_element_branding_auth_header_logo_url: "{{ matrix_client_element_welcome_logo }}"  # noqa var-naming
 
 # URL to Wallpaper, shown in background of welcome page
-matrix_client_element_branding_welcomeBackgroundUrl: ~  # noqa var-naming
+matrix_client_element_branding_welcome_background_url: ~  # noqa var-naming
 
 matrix_client_element_page_template_welcome_path: "{{ role_path }}/templates/welcome.html.j2"
 
@@ -183,7 +181,7 @@ matrix_client_element_page_template_welcome_path: "{{ role_path }}/templates/wel
 # point this to a `home.html` template file on your local filesystem.
 matrix_client_element_embedded_pages_home_path: ~
 
-matrix_client_element_jitsi_preferredDomain: ''  # noqa var-naming
+matrix_client_element_jitsi_preferred_domain: ''  # noqa var-naming
 
 # Controls whether the self-check feature should validate SSL certificates.
 matrix_client_element_self_check_validate_certificates: true
@@ -207,14 +205,14 @@ matrix_client_element_themes_repository_version: master
 # Controls the default theme
 matrix_client_element_default_theme: 'light'
 
-# Controls the `settingsDefault.custom_themes` setting of the Element configuration.
+# Controls the `setting_defaults.custom_themes` setting of the Element configuration.
 # You can use this setting to define custom themes.
 #
 # Also, look at `matrix_client_element_themes_enabled` for a way to pull in a bunch of custom themes automatically.
 # If you define your own themes here and set `matrix_client_element_themes_enabled: true`, your themes will be preserved as well.
 #
 # Note that for a custom theme to work well, all Element instances that you use must have the same theme installed.
-matrix_client_element_settingDefaults_custom_themes: []  # noqa var-naming
+matrix_client_element_setting_defaults_custom_themes: []  # noqa var-naming
 
 # Default Element configuration template which covers the generic use case.
 # You can customize it by controlling the various variables inside it.

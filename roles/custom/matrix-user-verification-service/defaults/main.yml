@@ -5,18 +5,32 @@ matrix_user_verification_service_ansible_name: "Matrix User Verification Service
 # Enable by default. This is overwritten in provided group vars.
 matrix_user_verification_service_enabled: true
 
+matrix_user_verification_service_container_image_self_build: "{{ matrix_architecture != 'amd64' }}"
+matrix_user_verification_service_container_image_self_build_repo: "https://github.com/matrix-org/matrix-user-verification-service"
+matrix_user_verification_service_container_image_self_build_branch: "{{ 'master' if matrix_registration_version == 'latest' else matrix_user_verification_service_version }}"
+
 # Fix version tag
-matrix_user_verification_service_version: "v2.0.0"
+# renovate: datasource=docker depName=matrixdotorg/matrix-user-verification-service
+matrix_user_verification_service_version: "v3.0.0"
 
 # Paths
 matrix_user_verification_service_base_path: "{{ matrix_base_data_path }}/user-verification-service"
 matrix_user_verification_service_config_path: "{{ matrix_user_verification_service_base_path }}/config"
 matrix_user_verification_service_config_env_file: "{{ matrix_user_verification_service_config_path }}/.env"
+matrix_user_verification_service_docker_src_files_path: "{{ matrix_user_verification_service_base_path }}/docker-src"
 
 # Docker
 matrix_user_verification_service_docker_image_name_prefix: "{{ matrix_container_global_registry_prefix }}"
 matrix_user_verification_service_docker_image: "{{ matrix_user_verification_service_docker_image_name_prefix }}matrixdotorg/matrix-user-verification-service:{{ matrix_user_verification_service_version }}"
 matrix_user_verification_service_docker_image_force_pull: "{{ matrix_user_verification_service_docker_image.endswith(':latest') }}"
+
+# The base container network. It will be auto-created by this role if it doesn't exist already.
+matrix_user_verification_service_container_network: ""
+
+# A list of additional container networks that the container would be connected to.
+# The role does not create these networks, so make sure they already exist.
+# Use this to expose this container to another reverse proxy, which runs in a different container network.
+matrix_user_verification_service_container_additional_networks: []
 
 matrix_user_verification_service_container_name: "matrix-user-verification-service"
 # This will be set in group vars
@@ -35,7 +49,7 @@ matrix_user_verification_service_systemd_service_name: "{{ matrix_user_verificat
 matrix_user_verification_service_uvs_access_token: ''
 
 # homeserver client api url
-matrix_user_verification_service_uvs_homeserver_url: "{{ matrix_homeserver_container_url }}"
+matrix_user_verification_service_uvs_homeserver_url: ""
 # disable check for non private ip range of homeserver. e.g. set to `true` if your homeserver domain resolves to a private ip.
 matrix_user_verification_service_uvs_disable_ip_blacklist: false
 

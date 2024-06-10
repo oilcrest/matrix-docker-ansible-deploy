@@ -21,7 +21,7 @@ Possibly outdated list of roles where self-building the Docker image is currentl
 - `matrix-corporal`
 - `matrix-dimension`
 - `matrix-ma1sd`
-- `matrix-mailer`
+- `exim-relay`
 - `matrix-bridge-hookshot`
 - `matrix-bridge-appservice-irc`
 - `matrix-bridge-appservice-slack`
@@ -40,6 +40,7 @@ Possibly outdated list of roles where self-building the Docker image is currentl
 - `matrix-bot-matrix-reminder-bot`
 - `matrix-bot-maubot`
 - `matrix-email2matrix`
+- `matrix-pantalaimon`
 
 Adding self-building support to other roles is welcome. Feel free to contribute!
 

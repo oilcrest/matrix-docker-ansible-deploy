@@ -112,6 +112,12 @@
     owner: "{{ matrix_user_username }}"
     group: "{{ matrix_user_groupname }}"
 
+- name: Ensure mx-puppet-discord container network is created
+  community.general.docker_network:
+    enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
+    name: "{{ matrix_mx_puppet_discord_container_network }}"
+    driver: bridge
+
 - name: Ensure matrix-mx-puppet-discord.service installed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/matrix-mx-puppet-discord.service.j2"
