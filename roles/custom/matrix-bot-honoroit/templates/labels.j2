@@ -1,3 +1,10 @@
+{#
+SPDX-FileCopyrightText: 2023 - 2024 Nikita Chernyi
+SPDX-FileCopyrightText: 2023 - 2024 Slavi Pantaleev
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+#}
+
 {% if matrix_bot_honoroit_container_labels_traefik_enabled %}
 traefik.enable=true
 
@@ -26,11 +33,6 @@ traefik.http.middlewares.matrix-bot-honoroit-strip-prefix.stripprefix.prefixes={
 traefik.http.middlewares.matrix-bot-honoroit-add-headers.headers.customresponseheaders.{{ name }}={{ value }}
 {% endfor %}
 {% set middlewares = middlewares + ['matrix-bot-honoroit-add-headers'] %}
-{% endif %}
-
-{% if matrix_bot_honoroit_basicauth_enabled %}
-traefik.http.middlewares.matrix-bot-honoroit-auth.basicauth.users={{ lookup('ansible.builtin.file', matrix_bot_honoroit_basicauth_file) }}
-{% set middlewares_metrics = middlewares + ['matrix-bot-honoroit-auth'] %}
 {% endif %}
 
 {% if middlewares_metrics | length > 0 %}

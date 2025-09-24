@@ -1,4 +1,4 @@
-#jinja2: lstrip_blocks: "True"
+#jinja2: lstrip_blocks: True
 # This is a custom nginx configuration file that we use in the container (instead of the default one),
 # because it allows us to run nginx with a non-root user.
 #
@@ -32,10 +32,14 @@ http {
 	default_type application/octet-stream;
 
 	log_format main '$remote_addr - $remote_user [$time_local] "$request" '
-					'$status $body_bytes_sent "$http_referer" '
-					'"$http_user_agent" "$http_x_forwarded_for"';
+		'$status $body_bytes_sent "$http_referer" '
+		'"$http_user_agent" "$http_x_forwarded_for"';
 
+	{% if matrix_client_cinny_access_log_enabled %}
 	access_log /var/log/nginx/access.log main;
+	{% else %}
+	access_log off;
+	{% endif %}
 
 	sendfile on;
 	#tcp_nopush on;
@@ -51,16 +55,21 @@ http {
 		root /usr/share/nginx/html;
 
 		location / {
-			index index.html index.htm;
-		}
+			# Inspired by: https://raw.githubusercontent.com/cinnyapp/cinny/dev/docker-nginx.conf
 
-		location ~* ^/(config(.+)?\.json$|(.+)\.html$|i18n) {
-			expires -1;
-		}
-
-		error_page 500 502 503 504 /50x.html;
-		location = /50x.html {
 			root /usr/share/nginx/html;
+
+			rewrite ^/config.json$ /config.json break;
+			rewrite ^/manifest.json$ /manifest.json break;
+
+			rewrite ^.*/olm.wasm$ /olm.wasm break;
+            rewrite ^/sw.js$ /sw.js break;
+			rewrite ^/pdf.worker.min.js$ /pdf.worker.min.js break;
+
+			rewrite ^/public/(.*)$ /public/$1 break;
+			rewrite ^/assets/(.*)$ /assets/$1 break;
+
+			rewrite ^(.+)$ /index.html break;
 		}
 	}
 }
